@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../vendor/autoload.php';
 
 /**
  * Class ilPanoptoPageComponentPlugin
@@ -8,10 +9,10 @@
 class ilPanoptoPageComponentPlugin extends ilPageComponentPlugin {
 
     function isValidParentType($a_type) {
-        // TODO: Implement isValidParentType() method.
+        return true;
     }
 
     function getPluginName() {
-        // TODO: Implement getPluginName() method.
+        return "PanoptoPageComponent";
     }
 }

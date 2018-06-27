@@ -1,11 +1,19 @@
 <?php
+require_once __DIR__ . '/../vendor/autoload.php';
 
 /**
  * Class ilPanoptoPageComponentPluginGUI
  *
  * @author Theodor Truffer <tt@studer-raimann.ch>
+ *
+ * @ilCtrl_isCalledBy ilPanoptoPageComponentPluginGUI: ilPCPluggedGUI
  */
 class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
+
+    const CMD_INSERT = 'insert';
+    const CMD_CREATE = 'create';
+    const CMD_EDIT = 'edit';
+    const CMD_UPDATE = 'update';
 
     /**
      * @var ilCtrl
@@ -49,19 +57,47 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
     }
 
     function insert() {
-        // TODO: Implement insert() method.
+        $this->tpl->addJavaScript($this->pl->getDirectory() . '/js/ppco.js');
+        $form = new ppcoVideoFormGUI($this);
+        $this->tpl->setContent($this->getModal() . $form->getHTML());
     }
 
     function edit() {
-        // TODO: Implement edit() method.
+
     }
 
     function create() {
-        // TODO: Implement create() method.
+        $ids = $_POST['session_id'];
+        foreach ($ids as $id) {
+            $this->createElement(array('id' => $id));
+        }
+        $this->ctrl->returnToParent($this);
     }
 
     function getElementHTML($a_mode, array $a_properties, $plugin_version) {
-        // TODO: Implement getElementHTML() method.
+        return "<iframe src='" . 'https://' . xpanUtil::getServerName() . "/Panopto/Pages/Embed.aspx?id=" . $a_properties['id']
+            . "&v=1' width='250' height='180' frameborder='0' allowfullscreen></iframe><br>";
+    }
+
+
+    /**
+     * @return String
+     */
+    protected function getModal() {
+        $this->tpl->addCss($this->pl->getDirectory() . '/templates/default/modal.css');
+        $modal = ilModalGUI::getInstance();
+        $modal->setId('xpan_modal');
+        $modal->setType(ilModalGUI::TYPE_LARGE);
+		$modal->setHeading($this->pl->txt('modal_title_browse_and_embed'));
+        $url = 'https://' . xpanUtil::getServerName() . '/Panopto/Pages/Sessions/EmbeddedUpload.aspx?playlistsEnabled=true';
+        $modal->setBody('<iframe id="xpan_iframe" src="'.$url.'"></iframe>');
+        $button = ilSubmitButton::getInstance();
+        $button->setCaption('insert');
+//        $button->setCommand('test');
+        $button->setId('xpan_insert');
+        $modal->addButton($button);
+//        $modal->setBody('<div>helooooo</div>');
+        return $modal->getHTML();
     }
 
 }
