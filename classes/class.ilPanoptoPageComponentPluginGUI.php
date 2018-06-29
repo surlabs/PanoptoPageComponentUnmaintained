@@ -103,7 +103,7 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
     function update() {
         $form = new ppcoVideoFormGUI($this, $this->getProperties());
         $form->setValuesByPost();
-        
+
         if (!$form->checkInput()) {
             $this->tpl->setContent($form->getHTML());
             return;

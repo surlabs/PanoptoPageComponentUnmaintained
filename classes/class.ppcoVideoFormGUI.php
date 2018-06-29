@@ -49,7 +49,7 @@ class ppcoVideoFormGUI extends ilPropertyFormGUI {
             $this->addCommandButton(ilPanoptoPageComponentPluginGUI::CMD_CREATE, $this->lng->txt('create'));
 
             $item = new ilCustomInputGUI('', 'xpan_choose_videos_link');
-            $item->setHtml("<a onclick=\"$('#xpan_modal').modal('show');\">Bitte Video Auswählen<a>");
+            $item->setHtml("<a onclick=\"$('#xpan_modal').modal('show');\">" . $this->pl->txt('choose_videos') . "<a>");
             $this->addItem($item);
         } else {
             $this->addCommandButton(ilPanoptoPageComponentPluginGUI::CMD_UPDATE, $this->lng->txt('update'));
