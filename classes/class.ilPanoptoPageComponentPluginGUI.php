@@ -40,6 +40,9 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
         $this->pl = new ilPanoptoPageComponentPlugin();
     }
 
+    /**
+     *
+     */
     function executeCommand() {
         try {
             $next_class = $this->ctrl->getNextClass();
@@ -56,27 +59,74 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
         }
     }
 
+    /**
+     *
+     */
     function insert() {
+        ilUtil::sendInfo($this->pl->txt('msg_choose_videos'));
         $this->tpl->addJavaScript($this->pl->getDirectory() . '/js/ppco.js');
         $form = new ppcoVideoFormGUI($this);
         $this->tpl->setContent($this->getModal() . $form->getHTML());
     }
 
-    function edit() {
-
-    }
-
+    /**
+     *
+     */
     function create() {
-        $ids = $_POST['session_id'];
-        foreach ($ids as $id) {
-            $this->createElement(array('id' => $id));
+        // the videos have to be created in reverse order to be presented in the correct order
+        $_POST['session_id'] = array_reverse($_POST['session_id']);
+        $_POST['height'] = array_reverse($_POST['height']);
+        $_POST['width'] = array_reverse($_POST['width']);
+
+        for ($i = 0; $i < count($_POST['session_id']); $i++) {
+            $this->createElement(array(
+                'id' => $_POST['session_id'][$i],
+                'height' => $_POST['height'][$i],
+                'width' => $_POST['width'][$i]
+            ));
         }
+
         $this->ctrl->returnToParent($this);
     }
 
+    /**
+     *
+     */
+    function edit() {
+        $form = new ppcoVideoFormGUI($this, $this->getProperties());
+        $this->tpl->setContent($form->getHTML());
+    }
+
+    /**
+     *
+     */
+    function update() {
+        $form = new ppcoVideoFormGUI($this, $this->getProperties());
+        $form->setValuesByPost();
+        
+        if (!$form->checkInput()) {
+            $this->tpl->setContent($form->getHTML());
+            return;
+        }
+
+        $this->updateElement(array(
+            'id' => $_POST['id'],
+            'height' => $_POST['height'],
+            'width' => $_POST['width']
+        ));
+
+        $this->returnToParent();
+    }
+
+    /**
+     * @param $a_mode
+     * @param array $a_properties
+     * @param $plugin_version
+     * @return string
+     */
     function getElementHTML($a_mode, array $a_properties, $plugin_version) {
         return "<iframe src='" . 'https://' . xpanUtil::getServerName() . "/Panopto/Pages/Embed.aspx?id=" . $a_properties['id']
-            . "&v=1' width='250' height='180' frameborder='0' allowfullscreen></iframe><br>";
+            . "&v=1' width='" . $a_properties['width'] . "' height='" . $a_properties['height'] . "' frameborder='0' allowfullscreen></iframe>";
     }
 
 

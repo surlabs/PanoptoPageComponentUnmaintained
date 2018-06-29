@@ -16,20 +16,27 @@ class ppcoVideoFormGUI extends ilPropertyFormGUI {
      * @var ilPanoptoPageComponentPluginGUI
      */
     protected $parent_gui;
+    /**
+     * @var ilPanoptoPageComponentPlugin
+     */
+    protected $pl;
+    /**
+     * @var array
+     */
+    protected $properties;
 
     /**
      * ppcoVideoFormGUI constructor.
      */
-    public function __construct(ilPanoptoPageComponentPluginGUI $parent_gui) {
+    public function __construct(ilPanoptoPageComponentPluginGUI $parent_gui, $properties = array()) {
         parent::__construct();
 
         global $DIC;
         $this->lng = $DIC->language();
         $this->id = 'xpan_embed';
-        $button = ilButton::getInstance();
-        $button->setCaption('add');
-        $button->setOnClick("$('#xpan_modal').modal('show');") ;
-        $DIC->toolbar()->addButtonInstance($button);
+        $this->pl = new ilPanoptoPageComponentPlugin();
+        $this->properties = $properties;
+        $this->setTitle($this->pl->txt('video_form_title'));
 
         $this->parent_gui = $parent_gui;
 
@@ -38,6 +45,34 @@ class ppcoVideoFormGUI extends ilPropertyFormGUI {
     }
 
     protected function initForm() {
-        $this->addCommandButton(ilPanoptoPageComponentPluginGUI::CMD_CREATE, $this->lng->txt('create'));
+        if (empty($this->properties)) {
+            $this->addCommandButton(ilPanoptoPageComponentPluginGUI::CMD_CREATE, $this->lng->txt('create'));
+
+            $item = new ilCustomInputGUI('', 'xpan_choose_videos_link');
+            $item->setHtml("<a onclick=\"$('#xpan_modal').modal('show');\">Bitte Video Auswählen<a>");
+            $this->addItem($item);
+        } else {
+            $this->addCommandButton(ilPanoptoPageComponentPluginGUI::CMD_UPDATE, $this->lng->txt('update'));
+
+            $item = new ilHiddenInputGUI('id');
+            $item->setValue($this->properties['id']);
+            $this->addItem($item);
+
+            $item = new ilCustomInputGUI('', '');
+            $item->setHtml("<iframe src='" . 'https://' . xpanUtil::getServerName() . "/Panopto/Pages/Embed.aspx?id=" . $this->properties['id']
+                . "&v=1' width='" . $this->properties['width'] . "' height='" . $this->properties['height'] . "' frameborder='0' allowfullscreen></iframe>");
+            $this->addItem($item);
+
+            $item = new ilNumberInputGUI($this->pl->txt('height'), 'height');
+            $item->setRequired(true);
+            $item->setValue($this->properties['height']);
+            $this->addItem($item);
+
+            $item = new ilNumberInputGUI($this->pl->txt('width'), 'width');
+            $item->setRequired(true);
+            $item->setValue($this->properties['width']);
+            $this->addItem($item);
+        }
     }
+
 }
