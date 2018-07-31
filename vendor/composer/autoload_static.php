@@ -1109,7 +1109,7 @@ class ComposerStaticInit9750d92d43d57a8b26da0d72382f2f76
         'xpanSettings' => __DIR__ . '/../..' . '/../../../Repository/RepositoryObject/Panopto/classes/Settings/class.xpanSettings.php',
         'xpanSettingsFormGUI' => __DIR__ . '/../..' . '/../../../Repository/RepositoryObject/Panopto/classes/Settings/class.xpanSettingsFormGUI.php',
         'xpanSettingsGUI' => __DIR__ . '/../..' . '/../../../Repository/RepositoryObject/Panopto/classes/Settings/class.xpanSettingsGUI.php',
-        'xpanUtil' => __DIR__ . '/../..' . '/../../../Repository/RepositoryObject/Panopto/classes/Util/xpanUtil.php',
+        'class.xpanUtil' => __DIR__ . '/../..' . '/../../../Repository/RepositoryObject/Panopto/classes/Util/xpanUtil.php',
         'xpanVideosGUI' => __DIR__ . '/../..' . '/../../../Repository/RepositoryObject/Panopto/classes/Videos/class.xpanVideosGUI.php',
     );
 

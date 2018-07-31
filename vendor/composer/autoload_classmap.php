@@ -1108,6 +1108,6 @@ return array(
     'xpanSettings' => $baseDir . '/../../../Repository/RepositoryObject/Panopto/classes/Settings/class.xpanSettings.php',
     'xpanSettingsFormGUI' => $baseDir . '/../../../Repository/RepositoryObject/Panopto/classes/Settings/class.xpanSettingsFormGUI.php',
     'xpanSettingsGUI' => $baseDir . '/../../../Repository/RepositoryObject/Panopto/classes/Settings/class.xpanSettingsGUI.php',
-    'xpanUtil' => $baseDir . '/../../../Repository/RepositoryObject/Panopto/classes/Util/xpanUtil.php',
+    'class.xpanUtil' => $baseDir . '/../../../Repository/RepositoryObject/Panopto/classes/Util/xpanUtil.php',
     'xpanVideosGUI' => $baseDir . '/../../../Repository/RepositoryObject/Panopto/classes/Videos/class.xpanVideosGUI.php',
 );

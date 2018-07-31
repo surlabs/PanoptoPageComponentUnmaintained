@@ -125,6 +125,11 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
      * @return string
      */
     function getElementHTML($a_mode, array $a_properties, $plugin_version) {
+        $client = xpanClient::getInstance();
+        if (!$client->hasUserViewerAccessOnSession($a_properties['id'])) {
+            $client->grantUserViewerAccessToSession($a_properties['id']);
+        }
+
         return "<iframe src='" . 'https://' . xpanUtil::getServerName() . "/Panopto/Pages/Embed.aspx?id=" . $a_properties['id']
             . "&v=1' width='" . $a_properties['width'] . "' height='" . $a_properties['height'] . "' frameborder='0' allowfullscreen></iframe>";
     }
