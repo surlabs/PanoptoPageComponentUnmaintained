@@ -1,6 +1,7 @@
 cmd_insert#:#Externes Video einfügen
 modal_title_browse_and_embed#:#Videos für den Seiteneditor auswählen
 msg_choose_videos#:#Klicken Sie auf "Videos Auswählen" und wählen Sie eines oder mehrere Videos aus, um diese dem Seiteneditor hinzuzufügen.
+msg_success#:#Änderungen erfolgreich gespeichert.
 video_form_title#:#Externes Video einfügen
 height#:#Höhe
 width#:#Breite
