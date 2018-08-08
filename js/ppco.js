@@ -1,6 +1,6 @@
 $(document).ready(function () {
     var get_new_form_groups = function(id, index, embedString) {
-        var form_groups = '<input type="hidden" name="session_id[]" value="'+id+'">';
+        var form_groups = '<input type="hidden" class="xpan_form_element" name="session_id[]" value="'+id+'">';
 
         form_groups += '<div class="form-group xpan_form_element" id="il_prop_cont_embed_'+index+'">';
         form_groups += '<label for="embed_'+index+'" class="col-sm-3 control-label">Video</label>';
