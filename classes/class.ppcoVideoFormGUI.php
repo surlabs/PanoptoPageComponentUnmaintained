@@ -49,7 +49,10 @@ class ppcoVideoFormGUI extends ilPropertyFormGUI {
             $this->addCommandButton(ilPanoptoPageComponentPluginGUI::CMD_CREATE, $this->lng->txt('create'));
 
             $item = new ilCustomInputGUI('', 'xpan_choose_videos_link');
-            $item->setHtml("<a onclick=\"$('#xpan_modal').modal('show');\">" . $this->pl->txt('choose_videos') . "<a>");
+            $url = 'https://' . xpanUtil::getServerName() . '/Panopto/Pages/Sessions/EmbeddedUpload.aspx?playlistsEnabled=true';
+            $onclick = "if(typeof(xpan_modal_opened) === 'undefined') { xpan_modal_opened = true; $('#xpan_iframe').attr('src', '" . $url . "');}"; // this avoids a bug in firefox (iframe source must be loaded on opening modal)
+            $onclick .= "$('#xpan_modal').modal('show');";
+            $item->setHtml("<a onclick=\"" . $onclick . "\">" . $this->pl->txt('choose_videos') . "<a>");
             $this->addItem($item);
         } else {
             $this->addCommandButton(ilPanoptoPageComponentPluginGUI::CMD_UPDATE, $this->lng->txt('update'));

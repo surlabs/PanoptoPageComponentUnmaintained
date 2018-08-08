@@ -148,10 +148,8 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
         $modal->setBody('<iframe id="xpan_iframe" src="'.$url.'"></iframe>');
         $button = ilSubmitButton::getInstance();
         $button->setCaption('insert');
-//        $button->setCommand('test');
         $button->setId('xpan_insert');
         $modal->addButton($button);
-//        $modal->setBody('<div>helooooo</div>');
         return $modal->getHTML();
     }
 
