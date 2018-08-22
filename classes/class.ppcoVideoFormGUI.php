@@ -76,6 +76,8 @@ class ppcoVideoFormGUI extends ilPropertyFormGUI {
             $item->setValue($this->properties['width']);
             $this->addItem($item);
         }
+
+        $this->addCommandButton(ilPanoptoPageComponentPluginGUI::CMD_CANCEL, $this->lng->txt('cancel'));
     }
 
 }

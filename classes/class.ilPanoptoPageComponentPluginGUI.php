@@ -14,6 +14,7 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
     const CMD_CREATE = 'create';
     const CMD_EDIT = 'edit';
     const CMD_UPDATE = 'update';
+    const CMD_CANCEL = 'cancel';
 
     /**
      * @var ilCtrl
@@ -57,6 +58,13 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
             ilUtil::sendFailure($e->getMessage(), true);
             $this->ctrl->returnToParent($this);
         }
+    }
+
+    /**
+     *
+     */
+    function cancel() {
+        $this->ctrl->returnToParent($this);
     }
 
     /**
