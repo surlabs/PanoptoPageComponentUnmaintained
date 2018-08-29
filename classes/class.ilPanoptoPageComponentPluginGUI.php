@@ -81,6 +81,10 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
      *
      */
     function create() {
+        if (empty($_POST['session_id']) || empty($_POST['height']) || empty($_POST['width'])) {
+            ilUtil::sendFailure($this->pl->txt('msg_no_video'), true);
+            $this->ctrl->redirect($this, self::CMD_INSERT);
+        }
         // the videos have to be created in reverse order to be presented in the correct order
         $_POST['session_id'] = array_reverse($_POST['session_id']);
         $_POST['height'] = array_reverse($_POST['height']);
