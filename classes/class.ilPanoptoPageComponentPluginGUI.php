@@ -14,6 +14,7 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
     const CMD_CREATE = 'create';
     const CMD_EDIT = 'edit';
     const CMD_UPDATE = 'update';
+    const CMD_CANCEL = 'cancel';
 
     /**
      * @var ilCtrl
@@ -62,6 +63,13 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
     /**
      *
      */
+    function cancel() {
+        $this->ctrl->returnToParent($this);
+    }
+
+    /**
+     *
+     */
     function insert() {
         ilUtil::sendInfo($this->pl->txt('msg_choose_videos'));
         $this->tpl->addJavaScript($this->pl->getDirectory() . '/js/ppco.js');
@@ -73,6 +81,10 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
      *
      */
     function create() {
+        if (empty($_POST['session_id']) || empty($_POST['height']) || empty($_POST['width'])) {
+            ilUtil::sendFailure($this->pl->txt('msg_no_video'), true);
+            $this->ctrl->redirect($this, self::CMD_INSERT);
+        }
         // the videos have to be created in reverse order to be presented in the correct order
         $_POST['session_id'] = array_reverse($_POST['session_id']);
         $_POST['height'] = array_reverse($_POST['height']);
@@ -148,10 +160,8 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
         $modal->setBody('<iframe id="xpan_iframe" src="'.$url.'"></iframe>');
         $button = ilSubmitButton::getInstance();
         $button->setCaption('insert');
-//        $button->setCommand('test');
         $button->setId('xpan_insert');
         $modal->addButton($button);
-//        $modal->setBody('<div>helooooo</div>');
         return $modal->getHTML();
     }
 
