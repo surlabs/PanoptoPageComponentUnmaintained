@@ -1,5 +1,8 @@
 # Changelog
 
+## [1.1.1]
+* Bugfix: disable selection of playlists
+
 ## [1.1.0]
 * Support for ILIAS 5.4
 * Dropped support for ILIAS 5.2
