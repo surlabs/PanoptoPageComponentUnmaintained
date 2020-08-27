@@ -15,18 +15,27 @@
   },
     "minimum-stability": "beta",
     "prefer-stable": true,
-    "require": {},
+    "require": {
+      "php": ">=7.0",
+      "srag/librariesnamespacechanger": ">=0.1.0"
+    },
     "autoload": {
         "classmap": [
-            "./classes/",
-            "../../../Repository/RepositoryObject/Panopto",
-            "../../../../../../../Services/COPage",
-            "../../../../../../../Services/UIComponent/Modal"
-        ]
+            "./classes/"
+        ],
+      "files": [
+        "../../../Repository/RepositoryObject/Panopto/vendor/autoload.php"
+      ]
     },
     "config": {
         "optimize-autoloader": true,
         "sort-packages": true,
         "classmap-authoritative": true
-    }
+    },
+  "scripts": {
+    "pre-autoload-dump": [
+      "srag\\LibrariesNamespaceChanger\\LibrariesNamespaceChanger::rewriteLibrariesNamespaces",
+      "srag\\LibrariesNamespaceChanger\\PHP72Backport::PHP72Backport"
+    ]
+  }
 }
