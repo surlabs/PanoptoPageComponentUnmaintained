@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.2.0]
+* ILIAS 6 support
+* Remove ILIAS 5.3 support
+* Min. PHP 7.0
+
 ## [1.1.1]
 * Bugfix: disable selection of playlists
 
