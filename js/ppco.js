@@ -1,6 +1,7 @@
 $(document).ready(function () {
-    var get_new_form_groups = function(id, index, embedString) {
+    var get_new_form_groups = function(id, index, embedString, isPlaylist) {
         var form_groups = '<input type="hidden" class="xpan_form_element" name="session_id[]" value="'+id+'">';
+        form_groups += '<input type="hidden" class=xpan_form_element" name="is_playlist[]" value="' + (isPlaylist ? 1 : 0) + '">';
 
         form_groups += '<div class="form-group xpan_form_element" id="il_prop_cont_embed_'+index+'">';
         form_groups += '<label for="embed_'+index+'" class="col-sm-3 control-label">Video</label>';
@@ -49,6 +50,7 @@ $(document).ready(function () {
 
     // Listen to message from child iframe
     eventEnter(messageEvent, function (e) {
+        console.log(e);
         var message = JSON.parse(e.data),
             thumbnailChunk = '',
             idChunk = '',
@@ -75,8 +77,10 @@ $(document).ready(function () {
 
             ids = message.ids;
             for (var i = (ids.length - 1); i >= 0; --i) {
+                let isPlaylist = false;
                 if (message.playableObjectTypes && (parseInt(message.playableObjectTypes[i]) === PLAYLIST_EMBED_ID)){
                     idChunk = "?pid=" + ids[i];
+                    isPlaylist = true;
                 } else {
                     idChunk = "?id=" + ids[i];
                 }
@@ -85,7 +89,7 @@ $(document).ready(function () {
                     idChunk + "&v=1' width='350' height='200' frameborder='0' allowfullscreen></iframe>";
 
                 // add new form elements (iframe + height + width)
-                $(get_new_form_groups(ids[i], i, embedString)).insertAfter(choose_videos_link);
+                $(get_new_form_groups(ids[i], i, embedString, isPlaylist)).insertAfter(choose_videos_link);
             }
             $('#xpan_modal').modal('hide')
         }

@@ -1,5 +1,8 @@
 # Changelog
 
+## [1.3.0]
+* allow selection of playlists
+
 ## [1.2.0]
 * ILIAS 6 support
 * Remove ILIAS 5.3 support

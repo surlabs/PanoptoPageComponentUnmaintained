@@ -72,7 +72,7 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
      */
     function insert() {
         ilUtil::sendInfo($this->pl->txt('msg_choose_videos'));
-        $this->tpl->addJavaScript($this->pl->getDirectory() . '/js/ppco.js');
+        $this->tpl->addJavaScript($this->pl->getDirectory() . '/js/ppco.min.js?1');
         $form = new ppcoVideoFormGUI($this);
         $this->tpl->setContent($this->getModal() . $form->getHTML());
     }
@@ -81,7 +81,7 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
      *
      */
     function create() {
-        if (empty($_POST['session_id']) || empty($_POST['height']) || empty($_POST['width'])) {
+        if (empty($_POST['session_id']) || empty($_POST['height']) || empty($_POST['width']) || empty($_POST['is_playlist'])) {
             ilUtil::sendFailure($this->pl->txt('msg_no_video'), true);
             $this->ctrl->redirect($this, self::CMD_INSERT);
         }
@@ -89,12 +89,14 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
         $_POST['session_id'] = array_reverse($_POST['session_id']);
         $_POST['height'] = array_reverse($_POST['height']);
         $_POST['width'] = array_reverse($_POST['width']);
+        $_POST['is_playlist'] = array_reverse($_POST['is_playlist']);
 
         for ($i = 0; $i < count($_POST['session_id']); $i++) {
             $this->createElement(array(
                 'id' => $_POST['session_id'][$i],
                 'height' => $_POST['height'][$i],
-                'width' => $_POST['width'][$i]
+                'width' => $_POST['width'][$i],
+                'is_playlist' => $_POST['is_playlist'][$i]
             ));
         }
 
@@ -124,7 +126,8 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
         $this->updateElement(array(
             'id' => $_POST['id'],
             'height' => $_POST['height'],
-            'width' => $_POST['width']
+            'width' => $_POST['width'],
+            'is_playlist' => $_POST['is_playlist'],
         ));
 
         $this->returnToParent();
@@ -138,12 +141,22 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
      */
     function getElementHTML($a_mode, array $a_properties, $plugin_version) {
         $client = xpanClient::getInstance();
-        if (!$client->hasUserViewerAccessOnSession($a_properties['id'])) {
-            $client->grantUserViewerAccessToSession($a_properties['id']);
+        if ($a_properties['is_playlist']) {
+            foreach ($client->getSessionsOfPlaylist($a_properties['id']) as $session) {
+                if (!$client->hasUserViewerAccessOnSession($session->getId())) {
+                    $client->grantUserViewerAccessToSession($session->getId());
+                }
+            }
+        } else {
+            if (!$client->hasUserViewerAccessOnSession($a_properties['id'])) {
+                $client->grantUserViewerAccessToSession($a_properties['id']);
+            }
         }
 
-        return "<iframe src='" . 'https://' . xpanUtil::getServerName() . "/Panopto/Pages/Embed.aspx?id=" . $a_properties['id']
-            . "&v=1' width='" . $a_properties['width'] . "' height='" . $a_properties['height'] . "' frameborder='0' allowfullscreen></iframe>";
+        return "<iframe src='https://" . xpanUtil::getServerName() . "/Panopto/Pages/Embed.aspx?"
+            . ($a_properties['is_playlist'] ? "p" : "") . "id=" . $a_properties['id']
+            . "&v=1' width='" . $a_properties['width'] . "' height='" . $a_properties['height']
+            . "' frameborder='0' allowfullscreen></iframe>";
     }
 
 
