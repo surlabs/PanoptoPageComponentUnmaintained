@@ -2,6 +2,7 @@
 
 ## [1.3.0]
 * allow selection of playlists
+* change default height/width to 256px/450px
 
 ## [1.2.0]
 * ILIAS 6 support
