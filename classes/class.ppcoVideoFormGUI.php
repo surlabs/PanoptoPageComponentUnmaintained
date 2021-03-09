@@ -69,18 +69,13 @@ class ppcoVideoFormGUI extends ilPropertyFormGUI {
             $item->setHtml("<iframe src='" . 'https://' . xpanUtil::getServerName() . "/Panopto/Pages/Embed.aspx?"
                 . ($this->properties['is_playlist'] ? "p" : "")
                 . "id=" . $this->properties['id']
-                . "&v=1' width='" . $this->properties['width'] . "' height='" . $this->properties['height']
+                . "&v=1' width='450' height='256'"
                 . "' frameborder='0' allowfullscreen></iframe>");
             $this->addItem($item);
 
-            $item = new ilNumberInputGUI($this->pl->txt('height'), 'height');
+            $item = new ilNumberInputGUI($this->pl->txt('max_width'), 'max_width');
             $item->setRequired(true);
-            $item->setValue($this->properties['height']);
-            $this->addItem($item);
-
-            $item = new ilNumberInputGUI($this->pl->txt('width'), 'width');
-            $item->setRequired(true);
-            $item->setValue($this->properties['width']);
+            $item->setValue($this->properties['max_width']);
             $this->addItem($item);
         }
 

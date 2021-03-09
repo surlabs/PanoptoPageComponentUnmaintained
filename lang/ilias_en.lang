@@ -6,4 +6,5 @@ msg_no_video#:#Please choose at least one video before creating.
 video_form_title#:#Insert External Video
 height#:#Height
 width#:#Width
+max_width#:#Max. width in %
 choose_videos#:#Add Videos

@@ -15,4 +15,10 @@ class ilPanoptoPageComponentPlugin extends ilPageComponentPlugin {
     function getPluginName() {
         return "PanoptoPageComponent";
     }
+
+    public function getCssFiles($a_mode)
+    {
+        return ['templates/default/page.css'];
+    }
+
 }

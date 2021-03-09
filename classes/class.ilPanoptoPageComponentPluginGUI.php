@@ -90,21 +90,19 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
      *
      */
     function create() {
-        if (empty($_POST['session_id']) || empty($_POST['height']) || empty($_POST['width']) || empty($_POST['is_playlist'])) {
+        if (empty($_POST['session_id']) || empty($_POST['max_width']) || empty($_POST['is_playlist'])) {
             ilUtil::sendFailure($this->pl->txt('msg_no_video'), true);
             $this->ctrl->redirect($this, self::CMD_INSERT);
         }
         // the videos have to be created in reverse order to be presented in the correct order
         $_POST['session_id'] = array_reverse($_POST['session_id']);
-        $_POST['height'] = array_reverse($_POST['height']);
-        $_POST['width'] = array_reverse($_POST['width']);
+        $_POST['max_width'] = array_reverse($_POST['max_width']);
         $_POST['is_playlist'] = array_reverse($_POST['is_playlist']);
 
         for ($i = 0; $i < count($_POST['session_id']); $i++) {
             $this->createElement(array(
                 'id' => $_POST['session_id'][$i],
-                'height' => $_POST['height'][$i],
-                'width' => $_POST['width'][$i],
+                'max_width' => $_POST['max_width'][$i],
                 'is_playlist' => $_POST['is_playlist'][$i]
             ));
         }
@@ -134,8 +132,7 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
 
         $this->updateElement(array(
             'id' => $_POST['id'],
-            'height' => $_POST['height'],
-            'width' => $_POST['width'],
+            'max_width' => $_POST['max_width'],
             'is_playlist' => $_POST['is_playlist'],
         ));
 
@@ -155,10 +152,18 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
             $this->client->grantViewerAccessToSession($a_properties['id']);
         }
 
-        return "<iframe src='https://" . xpanUtil::getServerName() . "/Panopto/Pages/Embed.aspx?"
+        if (!isset($a_properties['max_width'])) { // legacy
+            $size_props = "width:" . $a_properties['width'] . "px; height:" . $a_properties['height'] . "px;";
+            return "<div class='ppco_iframe_container' style='" .  $size_props . "'>" .
+                "<iframe src='https://" . xpanUtil::getServerName() . "/Panopto/Pages/Embed.aspx?"
+                . ($a_properties['is_playlist'] ? "p" : "") . "id=" . $a_properties['id']
+                . "&v=1' frameborder='0' allowfullscreen style='width:100%;height:100%'></iframe></div>";
+        }
+
+        return "<div class='ppco_iframe_container' style='width:" . $a_properties['max_width'] . "%'>" .
+            "<iframe src='https://" . xpanUtil::getServerName() . "/Panopto/Pages/Embed.aspx?"
             . ($a_properties['is_playlist'] ? "p" : "") . "id=" . $a_properties['id']
-            . "&v=1' width='" . $a_properties['width'] . "' height='" . $a_properties['height']
-            . "' frameborder='0' allowfullscreen></iframe>";
+            . "&v=1' frameborder='0' allowfullscreen style='width:100%;height:100%;position:absolute'></iframe></div>";
     }
 
 

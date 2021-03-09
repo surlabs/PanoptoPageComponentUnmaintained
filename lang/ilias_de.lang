@@ -6,4 +6,5 @@ msg_no_video#:#Bitte wählen Sie vor dem Erstellen mindestens ein Video aus.
 video_form_title#:#Externes Video einfügen
 height#:#Höhe
 width#:#Breite
+max_width#:#Maximale Breite in %
 choose_videos#:#Videos Auswählen
