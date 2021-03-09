@@ -1,4 +1,7 @@
 <?php
+
+use srag\Plugins\PanoptoPageComponent\Util\PermissionUtils;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 
 /**
@@ -28,6 +31,10 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
      * @var ilPanoptoPageComponentPlugin
      */
     protected $pl;
+    /**
+     * @var xpanClient
+     */
+    protected $client;
 
 
     /**
@@ -39,6 +46,7 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
         $this->tpl = $DIC->ui()->mainTemplate();
         $this->lng = $DIC->language();
         $this->pl = new ilPanoptoPageComponentPlugin();
+        $this->client = xpanClient::getInstance();
     }
 
     /**
@@ -71,6 +79,7 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
      *
      */
     function insert() {
+        $this->client->synchronizeCreatorPermissions();
         ilUtil::sendInfo($this->pl->txt('msg_choose_videos'));
         $this->tpl->addJavaScript($this->pl->getDirectory() . '/js/ppco.min.js?1');
         $form = new ppcoVideoFormGUI($this);
@@ -140,17 +149,10 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
      * @return string
      */
     function getElementHTML($a_mode, array $a_properties, $plugin_version) {
-        $client = xpanClient::getInstance();
         if ($a_properties['is_playlist']) {
-            foreach ($client->getSessionsOfPlaylist($a_properties['id']) as $session) {
-                if (!$client->hasUserViewerAccessOnSession($session->getId())) {
-                    $client->grantUserViewerAccessToSession($session->getId());
-                }
-            }
+            $this->client->grantViewerAccessToPlaylistFolder($a_properties['id']);
         } else {
-            if (!$client->hasUserViewerAccessOnSession($a_properties['id'])) {
-                $client->grantUserViewerAccessToSession($a_properties['id']);
-            }
+            $this->client->grantViewerAccessToSession($a_properties['id']);
         }
 
         return "<iframe src='https://" . xpanUtil::getServerName() . "/Panopto/Pages/Embed.aspx?"
