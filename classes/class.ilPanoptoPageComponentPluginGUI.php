@@ -131,15 +131,21 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
     }
 
     /**
-     * @param $a_mode
+     * @param       $a_mode
      * @param array $a_properties
-     * @param $plugin_version
+     * @param       $plugin_version
      * @return string
+     * @throws ilLogException
      */
     function getElementHTML($a_mode, array $a_properties, $plugin_version) {
         $client = xpanClient::getInstance();
-        if (!$client->hasUserViewerAccessOnSession($a_properties['id'])) {
-            $client->grantUserViewerAccessToSession($a_properties['id']);
+        try {
+            if (!$client->hasUserViewerAccessOnSession($a_properties['id'])) {
+                $client->grantUserViewerAccessToSession($a_properties['id']);
+            }
+        } catch (Exception $e) {
+            // exception could mean that the session was deleted. The embed player will display an appropriate message
+            xpanLog::getInstance()->logError($e->getCode(), 'Could not grant viewer access: ' . $e->getMessage());
         }
 
         return "<iframe src='" . 'https://' . xpanUtil::getServerName() . "/Panopto/Pages/Embed.aspx?id=" . $a_properties['id']
