@@ -5,6 +5,9 @@
 * feature: synchronize access to folders when adding new video
 * feature: set max width in % (responsive) instead of fixed pixel dimensions
 
+## [1.2.1]
+* Fix: fatal error when session was deleted in Panopto
+
 ## [1.2.0]
 * ILIAS 6 support
 * Remove ILIAS 5.3 support

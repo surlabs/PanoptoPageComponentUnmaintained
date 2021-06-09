@@ -140,21 +140,27 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
     }
 
     /**
-     * @param $a_mode
+     * @param       $a_mode
      * @param array $a_properties
-     * @param $plugin_version
+     * @param       $plugin_version
      * @return string
+     * @throws ilLogException
      */
     function getElementHTML($a_mode, array $a_properties, $plugin_version) {
-        if ($a_properties['is_playlist']) {
-            $this->client->grantViewerAccessToPlaylistFolder($a_properties['id']);
-        } else {
-            $this->client->grantViewerAccessToSession($a_properties['id']);
+        try {
+            if ($a_properties['is_playlist']) {
+                $this->client->grantViewerAccessToPlaylistFolder($a_properties['id']);
+            } else {
+                $this->client->grantViewerAccessToSession($a_properties['id']);
+            }
+        } catch (Exception $e) {
+            // exception could mean that the session was deleted. The embed player will display an appropriate message
+            xpanLog::getInstance()->logError($e->getCode(), 'Could not grant viewer access: ' . $e->getMessage());
         }
 
         if (!isset($a_properties['max_width'])) { // legacy
             $size_props = "width:" . $a_properties['width'] . "px; height:" . $a_properties['height'] . "px;";
-            return "<div class='ppco_iframe_container' style='" .  $size_props . "'>" .
+            return "<div class='ppco_iframe_container' style='" . $size_props . "'>" .
                 "<iframe src='https://" . xpanUtil::getServerName() . "/Panopto/Pages/Embed.aspx?"
                 . ($a_properties['is_playlist'] ? "p" : "") . "id=" . $a_properties['id']
                 . "&v=1' frameborder='0' allowfullscreen style='width:100%;height:100%'></iframe></div>";
