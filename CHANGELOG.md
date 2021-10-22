@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.3.0]
+* feature: allow selection of playlists
+* feature: synchronize access to folders when adding new video
+* feature: set max width in % (responsive) instead of fixed pixel dimensions
+
 ## [1.2.1]
 * Fix: fatal error when session was deleted in Panopto
 

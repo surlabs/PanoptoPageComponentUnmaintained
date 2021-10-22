@@ -1,6 +1,7 @@
 $(document).ready(function () {
-    var get_new_form_groups = function(id, index, embedString) {
+    var get_new_form_groups = function(id, index, embedString, isPlaylist) {
         var form_groups = '<input type="hidden" class="xpan_form_element" name="session_id[]" value="'+id+'">';
+        form_groups += '<input type="hidden" class=xpan_form_element" name="is_playlist[]" value="' + (isPlaylist ? 1 : 0) + '">';
 
         form_groups += '<div class="form-group xpan_form_element" id="il_prop_cont_embed_'+index+'">';
         form_groups += '<label for="embed_'+index+'" class="col-sm-3 control-label">Video</label>';
@@ -11,21 +12,11 @@ $(document).ready(function () {
         form_groups += '</div>';
         form_groups += '</div>';
 
-        form_groups += '<div class="form-group xpan_form_element" id="il_prop_cont_height_'+index+'">';
-        form_groups += '<label for="height_'+index+'" class="col-sm-3 control-label">Höhe<span class="asterisk">*</span></label>';
+        form_groups += '<div class="form-group xpan_form_element" id="il_prop_cont_max_width_'+index+'">';
+        form_groups += '<label for="max_width_'+index+'" class="col-sm-3 control-label">Maximale Breite in %<span class="asterisk">*</span></label>';
         form_groups += '<div class="col-sm-9">';
         form_groups += '<div class="form_inline">';
-        form_groups += '<input style="text-align:right;width:auto;" class="form-control" type="text" size="40" id="height_'+index+'" maxlength="200" name="height[]" required="required" value="200">';
-        form_groups += '<div class="help-block"></div>';
-        form_groups += '</div>';
-        form_groups += '</div>';
-        form_groups += '</div>';
-
-        form_groups += '<div class="form-group xpan_form_element" id="il_prop_cont_width_'+index+'">';
-        form_groups += '<label for="width_'+index+'" class="col-sm-3 control-label">Breite<span class="asterisk">*</span></label>';
-        form_groups += '<div class="col-sm-9">';
-        form_groups += '<div class="form_inline">';
-        form_groups += '<input style="text-align:right;width:auto;" class="form-control" type="text" size="40" id="width_'+index+'" maxlength="200" name="width[]" required="required" value="350">';
+        form_groups += '<input style="text-align:right;width:auto;" class="form-control" type="text" size="40" id="max_width_'+index+'" maxlength="200" name="max_width[]" required="required" value="50">';
         form_groups += '<div class="help-block"></div>';
         form_groups += '</div>';
         form_groups += '</div>';
@@ -49,6 +40,7 @@ $(document).ready(function () {
 
     // Listen to message from child iframe
     eventEnter(messageEvent, function (e) {
+        console.log(e);
         var message = JSON.parse(e.data),
             thumbnailChunk = '',
             idChunk = '',
@@ -75,17 +67,19 @@ $(document).ready(function () {
 
             ids = message.ids;
             for (var i = (ids.length - 1); i >= 0; --i) {
+                let isPlaylist = false;
                 if (message.playableObjectTypes && (parseInt(message.playableObjectTypes[i]) === PLAYLIST_EMBED_ID)){
                     idChunk = "?pid=" + ids[i];
+                    isPlaylist = true;
                 } else {
                     idChunk = "?id=" + ids[i];
                 }
 
                 embedString = "<iframe class='xpan_form_element' id='iframe_"+i+"' src='" + servername + "/Panopto/Pages/Embed.aspx" +
-                    idChunk + "&v=1' width='350' height='200' frameborder='0' allowfullscreen></iframe>";
+                    idChunk + "&v=1' width='450' height='256' frameborder='0' allowfullscreen></iframe>";
 
-                // add new form elements (iframe + height + width)
-                $(get_new_form_groups(ids[i], i, embedString)).insertAfter(choose_videos_link);
+                // add new form elements (iframe + max_width)
+                $(get_new_form_groups(ids[i], i, embedString, isPlaylist)).insertAfter(choose_videos_link);
             }
             $('#xpan_modal').modal('hide')
         }

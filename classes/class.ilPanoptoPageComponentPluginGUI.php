@@ -1,4 +1,7 @@
 <?php
+
+use srag\Plugins\PanoptoPageComponent\Util\PermissionUtils;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 
 /**
@@ -28,6 +31,10 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
      * @var ilPanoptoPageComponentPlugin
      */
     protected $pl;
+    /**
+     * @var xpanClient
+     */
+    protected $client;
 
 
     /**
@@ -39,6 +46,7 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
         $this->tpl = $DIC->ui()->mainTemplate();
         $this->lng = $DIC->language();
         $this->pl = new ilPanoptoPageComponentPlugin();
+        $this->client = xpanClient::getInstance();
     }
 
     /**
@@ -71,8 +79,9 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
      *
      */
     function insert() {
+        $this->client->synchronizeCreatorPermissions();
         ilUtil::sendInfo($this->pl->txt('msg_choose_videos'));
-        $this->tpl->addJavaScript($this->pl->getDirectory() . '/js/ppco.js');
+        $this->tpl->addJavaScript($this->pl->getDirectory() . '/js/ppco.min.js?1');
         $form = new ppcoVideoFormGUI($this);
         $this->tpl->setContent($this->getModal() . $form->getHTML());
     }
@@ -81,20 +90,20 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
      *
      */
     function create() {
-        if (empty($_POST['session_id']) || empty($_POST['height']) || empty($_POST['width'])) {
+        if (empty($_POST['session_id']) || empty($_POST['max_width']) || empty($_POST['is_playlist'])) {
             ilUtil::sendFailure($this->pl->txt('msg_no_video'), true);
             $this->ctrl->redirect($this, self::CMD_INSERT);
         }
         // the videos have to be created in reverse order to be presented in the correct order
         $_POST['session_id'] = array_reverse($_POST['session_id']);
-        $_POST['height'] = array_reverse($_POST['height']);
-        $_POST['width'] = array_reverse($_POST['width']);
+        $_POST['max_width'] = array_reverse($_POST['max_width']);
+        $_POST['is_playlist'] = array_reverse($_POST['is_playlist']);
 
         for ($i = 0; $i < count($_POST['session_id']); $i++) {
             $this->createElement(array(
                 'id' => $_POST['session_id'][$i],
-                'height' => $_POST['height'][$i],
-                'width' => $_POST['width'][$i]
+                'max_width' => $_POST['max_width'][$i],
+                'is_playlist' => $_POST['is_playlist'][$i]
             ));
         }
 
@@ -123,8 +132,8 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
 
         $this->updateElement(array(
             'id' => $_POST['id'],
-            'height' => $_POST['height'],
-            'width' => $_POST['width']
+            'max_width' => $_POST['max_width'],
+            'is_playlist' => $_POST['is_playlist'],
         ));
 
         $this->returnToParent();
@@ -138,18 +147,29 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
      * @throws ilLogException
      */
     function getElementHTML($a_mode, array $a_properties, $plugin_version) {
-        $client = xpanClient::getInstance();
         try {
-            if (!$client->hasUserViewerAccessOnSession($a_properties['id'])) {
-                $client->grantUserViewerAccessToSession($a_properties['id']);
+            if ($a_properties['is_playlist']) {
+                $this->client->grantViewerAccessToPlaylistFolder($a_properties['id']);
+            } else {
+                $this->client->grantViewerAccessToSession($a_properties['id']);
             }
         } catch (Exception $e) {
             // exception could mean that the session was deleted. The embed player will display an appropriate message
             xpanLog::getInstance()->logError($e->getCode(), 'Could not grant viewer access: ' . $e->getMessage());
         }
 
-        return "<iframe src='" . 'https://' . xpanUtil::getServerName() . "/Panopto/Pages/Embed.aspx?id=" . $a_properties['id']
-            . "&v=1' width='" . $a_properties['width'] . "' height='" . $a_properties['height'] . "' frameborder='0' allowfullscreen></iframe>";
+        if (!isset($a_properties['max_width'])) { // legacy
+            $size_props = "width:" . $a_properties['width'] . "px; height:" . $a_properties['height'] . "px;";
+            return "<div class='ppco_iframe_container' style='" . $size_props . "'>" .
+                "<iframe src='https://" . xpanUtil::getServerName() . "/Panopto/Pages/Embed.aspx?"
+                . ($a_properties['is_playlist'] ? "p" : "") . "id=" . $a_properties['id']
+                . "&v=1' frameborder='0' allowfullscreen style='width:100%;height:100%'></iframe></div>";
+        }
+
+        return "<div class='ppco_iframe_container' style='width:" . $a_properties['max_width'] . "%'>" .
+            "<iframe src='https://" . xpanUtil::getServerName() . "/Panopto/Pages/Embed.aspx?"
+            . ($a_properties['is_playlist'] ? "p" : "") . "id=" . $a_properties['id']
+            . "&v=1' frameborder='0' allowfullscreen style='width:100%;height:100%;position:absolute'></iframe></div>";
     }
 
 

@@ -34,6 +34,7 @@ class ComposerStaticInit9750d92d43d57a8b26da0d72382f2f76
         'srag\\LibrariesNamespaceChanger\\PHP7Backport' => __DIR__ . '/..' . '/srag/librariesnamespacechanger/src/PHP7Backport.php',
         'srag\\LibrariesNamespaceChanger\\RemovePHP72Backport' => __DIR__ . '/..' . '/srag/librariesnamespacechanger/src/RemovePHP72Backport.php',
         'srag\\LibrariesNamespaceChanger\\UpdatePluginReadme' => __DIR__ . '/..' . '/srag/librariesnamespacechanger/src/UpdatePluginReadme.php',
+        'srag\\Plugins\\PanoptoPageComponent\\Util\\PermissionUtils' => __DIR__ . '/../..' . '/src/Util/PermissionUtils.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

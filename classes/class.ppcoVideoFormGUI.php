@@ -49,7 +49,7 @@ class ppcoVideoFormGUI extends ilPropertyFormGUI {
             $this->addCommandButton(ilPanoptoPageComponentPluginGUI::CMD_CREATE, $this->lng->txt('create'));
 
             $item = new ilCustomInputGUI('', 'xpan_choose_videos_link');
-            $url = 'https://' . xpanUtil::getServerName() . '/Panopto/Pages/Sessions/EmbeddedUpload.aspx?playlistsEnabled=false';
+            $url = 'https://' . xpanUtil::getServerName() . '/Panopto/Pages/Sessions/EmbeddedUpload.aspx?playlistsEnabled=true';
             $onclick = "if(typeof(xpan_modal_opened) === 'undefined') { xpan_modal_opened = true; $('#xpan_iframe').attr('src', '" . $url . "');}"; // this avoids a bug in firefox (iframe source must be loaded on opening modal)
             $onclick .= "$('#xpan_modal').modal('show');";
             $item->setHtml("<a onclick=\"" . $onclick . "\">" . $this->pl->txt('choose_videos') . "<a>");
@@ -61,19 +61,21 @@ class ppcoVideoFormGUI extends ilPropertyFormGUI {
             $item->setValue($this->properties['id']);
             $this->addItem($item);
 
+            $item = new ilHiddenInputGUI('is_playlist');
+            $item->setValue($this->properties['is_playlist'] ? 1 : 0);
+            $this->addItem($item);
+
             $item = new ilCustomInputGUI('', '');
-            $item->setHtml("<iframe src='" . 'https://' . xpanUtil::getServerName() . "/Panopto/Pages/Embed.aspx?id=" . $this->properties['id']
-                . "&v=1' width='" . $this->properties['width'] . "' height='" . $this->properties['height'] . "' frameborder='0' allowfullscreen></iframe>");
+            $item->setHtml("<iframe src='" . 'https://' . xpanUtil::getServerName() . "/Panopto/Pages/Embed.aspx?"
+                . ($this->properties['is_playlist'] ? "p" : "")
+                . "id=" . $this->properties['id']
+                . "&v=1' width='450' height='256'"
+                . "' frameborder='0' allowfullscreen></iframe>");
             $this->addItem($item);
 
-            $item = new ilNumberInputGUI($this->pl->txt('height'), 'height');
+            $item = new ilNumberInputGUI($this->pl->txt('max_width'), 'max_width');
             $item->setRequired(true);
-            $item->setValue($this->properties['height']);
-            $this->addItem($item);
-
-            $item = new ilNumberInputGUI($this->pl->txt('width'), 'width');
-            $item->setRequired(true);
-            $item->setValue($this->properties['width']);
+            $item->setValue($this->properties['max_width']);
             $this->addItem($item);
         }
 

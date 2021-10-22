@@ -1,5 +1,6 @@
 {
     "name": "studer-raimann.ch/panopto-page-component",
+    "description": "ILIAS Page Editor plugin for Panopto (depends on Repository Object plugin)",
     "type": "project",
     "license": "GPL-3.0+",
     "authors": [
@@ -21,7 +22,8 @@
     },
     "autoload": {
         "classmap": [
-            "./classes/"
+          "./src/",
+          "./classes/"
         ],
       "files": [
         "../../../Repository/RepositoryObject/Panopto/vendor/autoload.php"
