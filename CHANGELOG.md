@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.4.0]
+* ILIAS 7 support
+* Dropped ILIAS 5.4 support
+
 ## [1.3.0]
 * feature: allow selection of playlists
 * feature: synchronize access to folders when adding new video
