@@ -41,18 +41,19 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
      * ilPanoptoPageComponentPluginGUI constructor.
      */
     public function __construct() {
+        parent::__construct();
         global $DIC;
         $this->ctrl = $DIC->ctrl();
         $this->tpl = $DIC->ui()->mainTemplate();
-        $this->lng = $DIC->language();
-        $this->pl = new ilPanoptoPageComponentPlugin();
+        $this->pl = ilPanoptoPageComponentPlugin::getInstance();
         $this->client = xpanClient::getInstance();
     }
 
     /**
      *
      */
-    function executeCommand() {
+    function executeCommand(): void
+    {
         try {
             $next_class = $this->ctrl->getNextClass();
             $cmd = $this->ctrl->getCmd();
@@ -78,32 +79,32 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
     /**
      *
      */
-    function insert() {
+    function insert(): void
+    {
         $this->client->synchronizeCreatorPermissions();
-        ilUtil::sendInfo($this->pl->txt('msg_choose_videos'));
+        $this->tpl->setOnScreenMessage("success", ilPanoptoPlugin::getInstance()->txt("msg_choose_videos"), true);
+        //   ilUtil::sendInfo($this->pl->txt('msg_choose_videos'));
         $this->tpl->addJavaScript($this->pl->getDirectory() . '/js/ppco.min.js?1');
         $form = new ppcoVideoFormGUI($this);
         $this->tpl->setContent($this->getModal() . $form->getHTML());
     }
 
-    /**
-     *
-     */
-    function create() {
+    function create(): void
+    {
         if (empty($_POST['session_id']) || empty($_POST['max_width']) || empty($_POST['is_playlist'])) {
             ilUtil::sendFailure($this->pl->txt('msg_no_video'), true);
             $this->ctrl->redirect($this, self::CMD_INSERT);
         }
-        // the videos have to be created in reverse order to be presented in the correct order
-        $_POST['session_id'] = array_reverse($_POST['session_id']);
-        $_POST['max_width'] = array_reverse($_POST['max_width']);
-        $_POST['is_playlist'] = array_reverse($_POST['is_playlist']);
+        // Creamos copias locales de las variables `$_POST` para trabajar con ellas
+        $session_ids = array_reverse($_POST['session_id']);
+        $max_widths = array_reverse($_POST['max_width']);
+        $is_playlists = array_reverse($_POST['is_playlist']);
 
-        for ($i = 0; $i < count($_POST['session_id']); $i++) {
+        for ($i = 0; $i < count($session_ids); $i++) {
             $this->createElement(array(
-                'id' => $_POST['session_id'][$i],
-                'max_width' => $_POST['max_width'][$i],
-                'is_playlist' => $_POST['is_playlist'][$i]
+                'id' => $session_ids[$i],
+                'max_width' => $max_widths[$i],
+                'is_playlist' => $is_playlists[$i]
             ));
         }
 
@@ -113,7 +114,8 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
     /**
      *
      */
-    function edit() {
+    function edit(): void
+    {
         $form = new ppcoVideoFormGUI($this, $this->getProperties());
         $this->tpl->setContent($form->getHTML());
     }
@@ -121,13 +123,14 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
     /**
      *
      */
-    function update() {
+    function update(): bool
+    {
         $form = new ppcoVideoFormGUI($this, $this->getProperties());
         $form->setValuesByPost();
 
         if (!$form->checkInput()) {
             $this->tpl->setContent($form->getHTML());
-            return;
+           // return;
         }
 
         $this->updateElement(array(
@@ -137,6 +140,7 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
         ));
 
         $this->returnToParent();
+        return true;
     }
 
     /**
@@ -146,7 +150,8 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
      * @return string
      * @throws ilLogException
      */
-    function getElementHTML($a_mode, array $a_properties, $plugin_version) {
+    function getElementHTML($a_mode, array $a_properties, $plugin_version): string
+    {
         try {
             if ($a_properties['is_playlist']) {
                 $this->client->grantViewerAccessToPlaylistFolder($a_properties['id']);

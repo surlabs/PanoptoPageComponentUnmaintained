@@ -10,7 +10,7 @@ class ppcoVideoFormGUI extends ilPropertyFormGUI {
     /**
      * @var ilLanguage
      */
-    protected $lng;
+    protected ilLanguage $lng;
 
     /**
      * @var ilPanoptoPageComponentPluginGUI
@@ -34,7 +34,7 @@ class ppcoVideoFormGUI extends ilPropertyFormGUI {
         global $DIC;
         $this->lng = $DIC->language();
         $this->id = 'xpan_embed';
-        $this->pl = new ilPanoptoPageComponentPlugin();
+        $this->pl = ilPanoptoPageComponentPlugin::getInstance();
         $this->properties = $properties;
         $this->setTitle($this->pl->txt('video_form_title'));
 
