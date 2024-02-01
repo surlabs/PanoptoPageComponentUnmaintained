@@ -1,6 +1,8 @@
 <?php
 
 use srag\Plugins\PanoptoPageComponent\Util\PermissionUtils;
+use League\OAuth1\Client as OAuth1;
+
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -162,16 +164,18 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
             // exception could mean that the session was deleted. The embed player will display an appropriate message
             xpanLog::getInstance()->logError($e->getCode(), 'Could not grant viewer access: ' . $e->getMessage());
         }
+        $html = $this->launch();
+
 
         if (!isset($a_properties['max_width'])) { // legacy
             $size_props = "width:" . $a_properties['width'] . "px; height:" . $a_properties['height'] . "px;";
-            return "<div class='ppco_iframe_container' style='" . $size_props . "'>" .
+            return "<div class='ppco_iframe_container' style='" . $size_props . "'>" . $html.
                 "<iframe src='https://" . xpanUtil::getServerName() . "/Panopto/Pages/Embed.aspx?"
                 . ($a_properties['is_playlist'] ? "p" : "") . "id=" . $a_properties['id']
                 . "&v=1' frameborder='0' allowfullscreen style='width:100%;height:100%'></iframe></div>";
         }
 
-        return "<div class='ppco_iframe_container' style='width:" . $a_properties['max_width'] . "%'>" .
+        return "<div class='ppco_iframe_container' style='width:" . $a_properties['max_width'] . "%'>" . $html .
             "<iframe src='https://" . xpanUtil::getServerName() . "/Panopto/Pages/Embed.aspx?"
             . ($a_properties['is_playlist'] ? "p" : "") . "id=" . $a_properties['id']
             . "&v=1' frameborder='0' allowfullscreen style='width:100%;height:100%;position:absolute'></iframe></div>";
@@ -194,6 +198,78 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
         $button->setId('xpan_insert');
         $modal->addButton($button);
         return $modal->getHTML();
+    }
+
+    public static function launch() : String
+    {
+        global $DIC, $tpl;
+
+        # Load config
+        $launch_url = 'https://' . xpanUtil::getServerName();
+        $key = xpanUtil::getInstanceName();
+        $secret = xpanUtil::getApplicationKey();
+
+        $launch_data = array(
+            "user_id" => xpanUtil::getUserIdentifier(),
+            "roles" => "Viewer",
+            "lis_person_name_full" => str_replace("'","`",($DIC->user()->getFullname())),
+            "lis_person_name_family" => str_replace("'","`",($DIC->user()->getLastname())),
+            "lis_person_name_given" => str_replace("'","`",($DIC->user()->getFirstname())),
+            "lis_person_contact_email_primary" => $DIC->user()->getEmail(),
+            "context_type" => "urn:lti:context-type:ilias/Object",
+            'launch_presentation_locale' => 'de',
+            'launch_presentation_document_target' => 'iframe',
+        );
+
+        #
+        # END OF CONFIGURATION SECTION
+        # ------------------------------
+
+        $now = new DateTime();
+
+        $launch_data["lti_version"] = "LTI-1p0";
+        $launch_data["lti_message_type"] = "basic-lti-launch-request";
+
+
+        # Basic LTI uses OAuth to sign requests
+        # OAuth Core 1.0 spec: http://oauth.net/core/1.0/
+        $launch_data["oauth_callback"] = "about:blank";
+        $launch_data["oauth_consumer_key"] = $key;
+        $launch_data["oauth_version"] = "1.0";
+        $launch_data["oauth_nonce"] = uniqid('', true);
+        $launch_data["oauth_timestamp"] = $now->getTimestamp();
+        $launch_data["oauth_signature_method"] = "HMAC-SHA1";
+
+        # In OAuth, request parameters must be sorted by name
+        $launch_data_keys = array_keys($launch_data);
+        sort($launch_data_keys);
+        $launch_params = array();
+        foreach ($launch_data_keys as $key) {
+            array_push($launch_params, $key . "=" . rawurlencode($launch_data[$key]));
+        }
+
+        $credentials = new OAuth1\Credentials\ClientCredentials();
+        $credentials->setIdentifier($key);
+        $credentials->setSecret($secret);
+
+        ksort($launch_data);
+        $signature = new OAuth1\Signature\HmacSha1Signature($credentials);
+        $oauth_signature = $signature->sign($launch_url . '/Panopto/BasicLTI/BasicLTILanding.aspx', $launch_data, 'POST');
+        $launch_data['oauth_signature'] = $oauth_signature;
+
+        $html = '<form id="lti_form" action="' . $launch_url . '/Panopto/BasicLTI/BasicLTILanding.aspx" method="post" target="basicltiLaunchFrame" enctype="application/x-www-form-urlencoded">';
+
+        foreach ($launch_data as $k => $v) {
+            $html .= "<input type='hidden' name='$k' value='$v'>";
+        }
+
+        $html .= '</form>';
+        $html .= '<iframe name="basicltiLaunchFrame"  id="basicltiLaunchFrame" src="" style="display:none;"></iframe>';
+        //$DIC->ui()->mainTemplate()->addJavaScript('Customizing/global/plugins/Services/Repository/RepositoryObject/Panopto/js/LTI.js');
+        $DIC->ui()->mainTemplate()->addOnLoadCode('$("#lti_form").submit();');
+
+        return $html;
+
     }
 
 }
