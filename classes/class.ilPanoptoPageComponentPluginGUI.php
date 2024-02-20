@@ -84,7 +84,7 @@ class ilPanoptoPageComponentPluginGUI extends ilPageComponentPluginGUI {
     function insert(): void
     {
         $this->client->synchronizeCreatorPermissions();
-        $this->tpl->setOnScreenMessage("success", ilPanoptoPlugin::getInstance()->txt("msg_choose_videos"), true);
+        $this->tpl->setOnScreenMessage("success", $this->pl->txt("msg_choose_videos"), true);
         //   ilUtil::sendInfo($this->pl->txt('msg_choose_videos'));
         $this->tpl->addJavaScript($this->pl->getDirectory() . '/js/ppco.min.js?1');
         $form = new ppcoVideoFormGUI($this);
